@@ -53,7 +53,7 @@ return {
             type = "record",
             fields = {
                 { service_url = { type = "string", required = true }, },
-                { shared_secret = { type = "string", required = true }, },
+                { shared_secret = { type = "string", referenceable = true, required = true }, },
                 { secret_header_name = { type = "string", required = true }, },
                 { connection_timeout_ms = { type = "integer", required = false, default = 10000, gt = 0 }, },
                 { connection_keepAlive_ms = { type = "integer", required = false, default = 60000, gt = 0 }, },
