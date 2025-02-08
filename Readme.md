@@ -1,14 +1,24 @@
 # `ping-auth` Kong Gateway Plugin
 
+
+
+**THIS IS THE ID PARTNERS FORK OF THE KONG-PING-AUTH PLUGIN.**
+
+This fork has a single change in a single file ./ping-auth/schema.lua to allow the configuration values to be referenceable - see https://docs.konghq.com/gateway/latest/kong-enterprise/secrets-management/#referenceable-plugin-fields 
+
+
+
 ## Table of Contents
-* [Overview](#overview)
-* [File Structure](#file-structure)
-* [Installation](#installation)
-* [Configuration](#configuration)
-* [Usage](#usage)
-  * [Mutual TLS (mTLS)](#mutual-tls-mtls)
-  * [Transfer-Encoding](#transfer-encoding)
-* [Useful links](#useful-links)
+- [`ping-auth` Kong Gateway Plugin](#ping-auth-kong-gateway-plugin)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+    - [File Structure](#file-structure)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Usage](#usage)
+    - [Mutual TLS (mTLS)](#mutual-tls-mtls)
+    - [Transfer-Encoding](#transfer-encoding)
+  - [Useful links](#useful-links)
 
 ## Overview
 
