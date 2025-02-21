@@ -7,7 +7,7 @@ _G.resty_httpc = require "resty.http"
 
 local kong_response = kong.response
 
-local NAME = "[ping-auth] "
+local NAME = "[idp-ping-auth] "
 
 local PingHandler = {
   VERSION = "1.1.0",
