@@ -34,7 +34,7 @@ function _M.execute(config, parsed_url, payload)
         -- Retrieve client cert and key if mTLS is enabled
         local client_cert, client_key = nil, nil
         if config.use_mtls then
-            ngx.log(ngx.DEBUG, NAME .. " mTLS is on, retrieving client certificatex.")
+            ngx.log(ngx.DEBUG, NAME .. " mTLS is on, retrieving client certificate.")
             
             local client_cert_pem = kong.client.tls.get_full_client_certificate_chain()
             if not client_cert_pem then
