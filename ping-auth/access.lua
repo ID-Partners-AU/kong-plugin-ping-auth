@@ -322,6 +322,8 @@ function _M.get_client_cert(config)
     if not client_cert_pem then
         return nil
     end
+    ngx.log(ngx.DEBUG, "[idp-ping-auth] Have the client cert pem.")
+    
     ngx.log(ngx.DEBUG, "[idp-ping-auth] Returning client certificate.")
 
     -- Check if mTLS is enabled in the config
@@ -330,6 +332,8 @@ function _M.get_client_cert(config)
 
         -- Retrieve private key (Kong does NOT expose this by default)
         local client_key_pem = kong.client.tls.get_private_key()  -- If Kong exposes this, use it
+
+        ngx.log(ngx.DEBUG, NAME .. " accessed Kongs private key.")
 
         -- If Kong does not provide the private key, read it from a file
         if not client_key_pem then
