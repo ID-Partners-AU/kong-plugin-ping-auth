@@ -34,7 +34,7 @@ function _M.execute(config, parsed_url, payload)
         -- Retrieve client cert and key if mTLS is enabled
         local client_cert, client_key = nil, nil
         if config.use_mtls then
-            ngx.log(ngx.DEBUG, NAME .. " mTLS is enabled, retrieving client certificatex.")
+            ngx.log(ngx.DEBUG, NAME .. " mTLS is on, retrieving client certificatex.")
 
             client_cert, client_key = access.get_client_cert(config)
 
