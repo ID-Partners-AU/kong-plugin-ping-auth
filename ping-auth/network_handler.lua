@@ -38,9 +38,11 @@ function _M.execute(config, parsed_url, payload)
             
             local client_cert_pem = kong.client.tls.get_full_client_certificate_chain()
             if not client_cert_pem then
-                ngx.log(ngx.DEBUG,NAME ..  "[idp-ping-auth] No client cert pem.")
-                return nil
+                ngx.log(ngx.ERR, "[idp-ping-auth] No client cert PEM found! Make sure the client is sending a certificate.")
+                return nil, nil
             end
+            ngx.log(ngx.DEBUG, "[idp-ping-auth] Retrieved client certificate:\n" .. client_cert_pem)
+            
             ngx.log(ngx.DEBUG,NAME ..  "[idp-ping-auth] Have the client cert pem.")
         
             ngx.log(ngx.DEBUG, NAME .. "[idp-ping-auth] Returning client certificate.")
