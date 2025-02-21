@@ -33,7 +33,7 @@ function _M.execute(config)
    local client_cert, client_key = nil, nil
    if config.use_mtls then
        ngx.log(ngx.DEBUG, NAME .. " Using mTLS for connection.")
-       client_cert, client_key = _M.get_client_cert()
+       client_cert, client_key = _M.get_client_cert(config)
    else
        ngx.log(ngx.DEBUG, NAME .. " Not using mTLS for connection.")
    end
@@ -79,7 +79,7 @@ function _M.compose_payload(config, parsed_url)
     end
     payload_body.http_version = http_version
 
-    local client_cert = _M.get_client_cert()
+    local client_cert = _M.get_client_cert(config)
     if client_cert then
         payload_body.client_certificate = client_cert
     end
