@@ -1,6 +1,6 @@
 local kong_response = kong.response
 
-local NAME = "[ping-auth] "
+local NAME = "[idp-ping-auth] "
 
 local _M = {}
 

@@ -3,7 +3,7 @@ local kong_response = kong.response
 local kong_service_response = kong.service.response
 local ngx_req = ngx.req
 
-local NAME = "[ping-auth] "
+local NAME = "[idp-ping-auth] "
 local SIDEBAND_RESPONSE_ENDPOINT = "sideband/response"
 
 local enable_debug_logging

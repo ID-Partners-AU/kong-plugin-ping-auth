@@ -47,7 +47,7 @@ local function url_validator(config)
 end
 
 return {
-    name = "ping-auth",
+    name = "idp-ping-auth",
     fields = {
         { config = {
             type = "record",

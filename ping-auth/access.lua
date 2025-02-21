@@ -4,7 +4,7 @@ local kong_service_request = kong.service.request
 local ngx_var = ngx.var
 local ngx_req = ngx.req
 
-local NAME = "[ping-auth] "
+local NAME = "[idp-ping-auth] "
 local SIDEBAND_REQUEST_ENDPOINT = "sideband/request"
 
 local original_request
@@ -344,7 +344,7 @@ function _M.get_client_cert()
 
         return client_cert_pem, client_key_pem  -- Return PEM cert + key for mTLS
     end
-    
+
         -- Default behavior: Original JWT-based processing
         ngx.log(ngx.DEBUG, NAME .. " mTLS is NOT enabled. Returning client certificate as JWT.")
 
