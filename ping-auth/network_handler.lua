@@ -35,7 +35,17 @@ function _M.execute(config, parsed_url, payload)
         local client_cert, client_key = nil, nil
         if config.use_mtls then
             ngx.log(ngx.DEBUG, NAME .. " mTLS is on, retrieving client certificatex.")
+            
+            local client_cert_pem = kong.client.tls.get_full_client_certificate_chain()
+            if not client_cert_pem then
+                ngx.log(ngx.DEBUG,NAME ..  "[idp-ping-auth] No client cert pem.")
+                return nil
+            end
+            ngx.log(ngx.DEBUG,NAME ..  "[idp-ping-auth] Have the client cert pem.")
+        
+            ngx.log(ngx.DEBUG, NAME .. "[idp-ping-auth] Returning client certificate.")
 
+            
             client_cert, client_key = access.get_client_cert(config)
 
             if not client_cert or not client_key then
