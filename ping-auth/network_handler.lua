@@ -17,53 +17,79 @@ local circuit_timer = 0
         return: the response status_code, headers, and body
 ]]
 function _M.execute(config, parsed_url, payload)
-      local response, err
+    local response, err
 
-      if (tonumber(os.difftime(os.time() - nClock)) > tonumber(circuit_timer) and is_circuit_closed == false) then
+    if (tonumber(os.difftime(os.time() - nClock)) > tonumber(circuit_timer) and is_circuit_closed == false) then
         is_circuit_closed = true
-      end
+    end
 
-      if (is_circuit_closed == true) then
+    if is_circuit_closed then
         local httpc = _G.resty_httpc.new()
         local host = parsed_url.host
         local port = parsed_url.port
 
         httpc:set_timeout(config.connection_timeout_ms)
 
-        -- send the request
+        -- Retrieve client cert and key if mTLS is enabled
+        local client_cert, client_key = nil, nil
+        if config.use_mtls then
+            ngx.log(ngx.DEBUG, NAME .. " mTLS is enabled, retrieving client certificate.")
+            client_cert, client_key = _M.get_client_cert(config)
+
+            if not client_cert or not client_key then
+                ngx.log(ngx.ERR, NAME .. " mTLS is enabled but client certificate or key is missing.")
+                return kong_response.exit(502)
+            end
+        end
+
+        -- Perform SSL handshake for mTLS
+        if config.use_mtls then
+            ngx.log(ngx.DEBUG, NAME .. " Performing SSL handshake with mTLS.")
+            local ok, handshake_err = httpc:ssl_handshake(nil, parsed_url.host, config.verify_service_certificate, {
+                client_cert = client_cert,
+                client_key  = client_key,
+                cafile      = "/etc/kong/certs/ca_cert.pem"
+            })
+            if not ok then
+                ngx.log(ngx.ERR, string.format("%s Failed SSL handshake with %s: %s", NAME, parsed_url.host, handshake_err))
+                return kong_response.exit(502)
+            end
+        end
+
+        -- Send the request
         response, err = httpc:request_uri(config.service_url, {
             path = payload.path,
             query = payload.query,
             method = payload.method,
             version = payload.http_version,
-            query = payload.query,
             headers = payload.headers,
             body = payload.body,
             ssl_verify = config.verify_service_certificate,
             keepalive_timeout = config.connection_keepAlive_ms
         })
 
+        if not response then
+            ngx.log(ngx.ERR, string.format("%s Failed to send request to %s:%s: %s", NAME, host, port, err))
+            return kong_response.exit(502)
+        end
+
         if response.status == 429 then
             nClock = os.time()
             is_circuit_closed = false
             circuit_timer = response.headers["Retry-After"]
-            _M.is_failed_retry_request(circuit_timer)
-         end
-
-        if not response then
-            ngx.log(ngx.ERR, string.format("%sFailed to send request to %s:%s: %s", NAME, host, port, err))
-            return kong_response.exit(502)
+            return _M.is_failed_retry_request(circuit_timer)
         end
 
         if config.enable_debug_logging then
-            ngx.log(ngx.DEBUG, string.format("%sReceived sideband response from policy provider: \n%s",
+            ngx.log(ngx.DEBUG, string.format("%s Received sideband response from policy provider: \n%s",
                     NAME, _M.response_tostring(response, payload.path)))
         end
+
         return tonumber(response.status), response.headers, response.body
-      else
-       is_circuit_closed = false
-       _M.is_failed_retry_request(math.abs(os.difftime(os.time() - nClock)))
-      end
+    else
+        is_circuit_closed = false
+        return _M.is_failed_retry_request(math.abs(os.difftime(os.time() - nClock)))
+    end
 end
 
 --[[

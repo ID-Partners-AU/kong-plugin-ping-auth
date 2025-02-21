@@ -29,8 +29,19 @@ function _M.execute(config)
                 NAME, _G.network_handler.request_tostring(request)))
     end
 
-    local status_code, _, body = _G.network_handler.execute(config, parsed_url, request)
-    local state = _M.handle_response(status_code, body)
+   -- Conditionally retrieve client cert if mTLS is enabled
+   local client_cert, client_key = nil, nil
+   if config.use_mtls then
+       ngx.log(ngx.DEBUG, NAME .. " Using mTLS for connection.")
+       client_cert, client_key = _M.get_client_cert()
+   else
+       ngx.log(ngx.DEBUG, NAME .. " Not using mTLS for connection.")
+   end
+
+   -- Execute the HTTP request with or without mTLS
+   local status_code, _, body = _G.network_handler.execute(config, parsed_url, request, client_cert, client_key, config.use_mtls)
+
+   local state = _M.handle_response(status_code, body)
 
     return original_request, state
 end
@@ -311,6 +322,31 @@ function _M.get_client_cert()
     if not client_cert_pem then
         return nil
     end
+
+    -- Check if mTLS is enabled in the config
+    if config.use_mtls then
+        ngx.log(ngx.DEBUG, NAME .. " mTLS is enabled. Returning client certificate in PEM format.")
+
+        -- Retrieve private key (Kong does NOT expose this by default)
+        local client_key_pem = kong.client.tls.get_private_key()  -- If Kong exposes this, use it
+
+        -- If Kong does not provide the private key, read it from a file
+        if not client_key_pem then
+            local file = io.open("/etc/kong/certs/client_key.pem", "r")
+            if file then
+                client_key_pem = file:read("*a")
+                file:close()
+            else
+                ngx.log(ngx.ERR, NAME .. " Failed to read client key from file.")
+                return nil, nil
+            end
+        end
+
+        return client_cert_pem, client_key_pem  -- Return PEM cert + key for mTLS
+    end
+    
+        -- Default behavior: Original JWT-based processing
+        ngx.log(ngx.DEBUG, NAME .. " mTLS is NOT enabled. Returning client certificate as JWT.")
 
     -- parse the client certificate
     local cert, err = _G.x509.new(kong.client.tls.get_full_client_certificate_chain(), "*")

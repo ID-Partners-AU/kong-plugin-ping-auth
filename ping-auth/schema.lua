@@ -59,6 +59,7 @@ return {
                 { connection_keepAlive_ms = { type = "integer", required = false, default = 60000, gt = 0 }, },
                 { verify_service_certificate = { type = "boolean", required = false, default = true }, },
                 { enable_debug_logging = { type = "boolean", required = false, default = false }, },
+                { use_mtls = { type = "boolean", default = false } } 
             },
             custom_validator = url_validator,
         }, },
