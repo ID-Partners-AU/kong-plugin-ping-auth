@@ -316,12 +316,13 @@ end
         return: a table containing a base64 encoded DER representation of the client certificate under the "x5c" key or
                 nil if the client certificate isn't present
 ]]
-function _M.get_client_cert()
+function _M.get_client_cert(config)
     -- retrieve client certificate
     local client_cert_pem = kong.client.tls.get_full_client_certificate_chain()
     if not client_cert_pem then
         return nil
     end
+    ngx.log(ngx.DEBUG, "[idp-ping-auth] Returning client certificate.")
 
     -- Check if mTLS is enabled in the config
     if config.use_mtls then
@@ -345,8 +346,8 @@ function _M.get_client_cert()
         return client_cert_pem, client_key_pem  -- Return PEM cert + key for mTLS
     end
 
-        -- Default behavior: Original JWT-based processing
-        ngx.log(ngx.DEBUG, NAME .. " mTLS is NOT enabled. Returning client certificate as JWT.")
+    -- Default behavior: Original JWT-based processing
+    ngx.log(ngx.DEBUG, NAME .. " mTLS is NOT enabled. Returning client certificate as JWT.")
 
     -- parse the client certificate
     local cert, err = _G.x509.new(kong.client.tls.get_full_client_certificate_chain(), "*")
