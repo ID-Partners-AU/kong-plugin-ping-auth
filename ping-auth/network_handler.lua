@@ -1,7 +1,7 @@
 local kong_response = kong.response
 local access = require("kong.plugins.idp-ping-auth.access")
 
-local NAME = "[idp-ping-auth] "
+local NAME = "[idp-ping-auth]"
 
 local _M = {}
 
@@ -34,7 +34,7 @@ function _M.execute(config, parsed_url, payload)
         -- Retrieve client cert and key if mTLS is enabled
         local client_cert, client_key = nil, nil
         if config.use_mtls then
-            ngx.log(ngx.DEBUG, NAME .. " mTLS is enabled, retrieving client certificate.")
+            ngx.log(ngx.DEBUG, NAME .. " mTLS is enabled, retrieving client certificatex.")
 
             client_cert, client_key = access.get_client_cert(config)
 
