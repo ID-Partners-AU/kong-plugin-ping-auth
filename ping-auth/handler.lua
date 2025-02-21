@@ -1,8 +1,8 @@
-local access = require("kong.plugins.ping-auth.access")
-local response = require("kong.plugins.ping-auth.response")
+local access = require("kong.plugins.idp-ping-auth.access")
+local response = require("kong.plugins.idp-ping-auth.response")
 _G.cjson = require "cjson.safe"
 _G.x509 = require "resty.openssl.x509"
-_G.network_handler = require("kong.plugins.ping-auth.network_handler")
+_G.network_handler = require("kong.plugins.idp-ping-auth.network_handler")
 _G.resty_httpc = require "resty.http"
 
 local kong_response = kong.response
